@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0C447C">
+<meta name="description" content="A fun, kid-friendly interactive periodic table with everyday examples, electron configurations, discovery dates, melting points, and a quiz mode.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Periodic Kids">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>Periodic Kids — Interactive Periodic Table</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: #FAFAF7;
+    color: #1A1A1A;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+  @media (prefers-color-scheme: dark) {
+    html, body { background: #1A1A1A; color: #F1EFE8; }
+  }
+  body {
+    min-height: 100vh;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  .app {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 16px;
+  }
+  header {
+    margin-bottom: 16px;
+  }
+  h1 {
+    font-size: 22px;
+    font-weight: 500;
+    margin: 0 0 4px;
+  }
+  .tagline {
+    font-size: 13px;
+    color: #6B6A65;
+    margin: 0;
+  }
+  @media (prefers-color-scheme: dark) {
+    .tagline { color: #B4B2A9; }
+  }
+
+  /* --- Controls --- */
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+    align-items: center;
+  }
+  .modes {
+    display: flex;
+    gap: 4px;
+    padding: 3px;
+    background: rgba(0,0,0,0.05);
+    border-radius: 8px;
+  }
+  @media (prefers-color-scheme: dark) {
+    .modes { background: rgba(255,255,255,0.06); }
+  }
+  .m-btn {
+    font-size: 13px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: #6B6A65;
+    font-family: inherit;
+  }
+  @media (prefers-color-scheme: dark) {
+    .m-btn { color: #B4B2A9; }
+  }
+  .m-btn.active {
+    background: white;
+    color: #1A1A1A;
+    font-weight: 500;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    .m-btn.active { background: #2C2C2A; color: #F1EFE8; }
+  }
+  #search {
+    flex: 1;
+    min-width: 180px;
+    height: 36px;
+    padding: 0 12px;
+    font-size: 14px;
+    border: 0.5px solid rgba(0,0,0,0.15);
+    border-radius: 8px;
+    background: white;
+    color: inherit;
+    font-family: inherit;
+  }
+  @media (prefers-color-scheme: dark) {
+    #search { background: #2C2C2A; border-color: rgba(255,255,255,0.15); }
+  }
+  #search:focus { outline: 2px solid #378ADD; outline-offset: -1px; }
+
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .f-btn {
+    font-size: 12px;
+    padding: 5px 10px;
+    border-radius: 8px;
+    border: 0.5px solid rgba(0,0,0,0.15);
+    background: transparent;
+    cursor: pointer;
+    color: inherit;
+    font-family: inherit;
+  }
+  @media (prefers-color-scheme: dark) {
+    .f-btn { border-color: rgba(255,255,255,0.15); }
+  }
+  .f-btn:hover { background: rgba(0,0,0,0.04); }
+  @media (prefers-color-scheme: dark) {
+    .f-btn:hover { background: rgba(255,255,255,0.06); }
+  }
+  .f-btn.active {
+    background: #1A1A1A;
+    color: white;
+    border-color: #1A1A1A;
+  }
+  @media (prefers-color-scheme: dark) {
+    .f-btn.active { background: #F1EFE8; color: #1A1A1A; border-color: #F1EFE8; }
+  }
+
+  /* --- Quiz --- */
+  #quiz {
+    display: none;
+    background: rgba(0,0,0,0.04);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+  }
+  @media (prefers-color-scheme: dark) {
+    #quiz { background: rgba(255,255,255,0.05); }
+  }
+  .q-opt {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 12px 16px;
+    margin: 8px 0;
+    border-radius: 8px;
+    border: 0.5px solid rgba(0,0,0,0.15);
+    background: white;
+    cursor: pointer;
+    font-size: 15px;
+    color: inherit;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  @media (prefers-color-scheme: dark) {
+    .q-opt { background: #2C2C2A; border-color: rgba(255,255,255,0.15); }
+  }
+  .q-opt:hover { border-color: rgba(0,0,0,0.3); }
+  .q-opt.correct { background: #EAF3DE; border-color: #639922; color: #173404; }
+  .q-opt.wrong { background: #FCEBEB; border-color: #E24B4A; color: #501313; }
+  .q-opt:disabled { cursor: default; }
+
+  /* --- Table --- */
+  #table {
+    display: grid;
+    grid-template-columns: repeat(18, 1fr);
+    gap: 3px;
+    margin-bottom: 16px;
+  }
+  .el {
+    aspect-ratio: 1;
+    border-radius: 4px;
+    border: 0.5px solid rgba(0,0,0,0.1);
+    padding: 3px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.08s ease, outline 0.08s ease;
+    outline: 0px solid transparent;
+    overflow: hidden;
+    position: relative;
+  }
+  .el:hover { transform: scale(1.1); z-index: 5; outline: 1.5px solid currentColor; }
+  .el.dim { opacity: 0.15; }
+  .el.match { outline: 1.5px solid currentColor; }
+  .el .num { font-size: 9px; line-height: 1; opacity: 0.75; }
+  .el .sym { font-size: 16px; font-weight: 500; line-height: 1; text-align: center; margin-top: 2px; }
+  .el .extra {
+    font-size: 7.5px;
+    line-height: 1;
+    text-align: center;
+    opacity: 0.85;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .lbl {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: #6B6A65;
+    border: 0.5px dashed rgba(0,0,0,0.15);
+    border-radius: 4px;
+  }
+  @media (prefers-color-scheme: dark) {
+    .lbl { color: #B4B2A9; border-color: rgba(255,255,255,0.15); }
+  }
+
+  /* Smaller screens */
+  @media (max-width: 640px) {
+    .app { padding: 10px; }
+    .el .num { font-size: 7px; }
+    .el .sym { font-size: 11px; }
+    .el .extra { font-size: 5.5px; }
+    .lbl { font-size: 8px; }
+    #table { gap: 2px; }
+  }
+
+  /* --- Detail panel --- */
+  #detail {
+    background: rgba(0,0,0,0.04);
+    border-radius: 12px;
+    padding: 16px 20px;
+    min-height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6B6A65;
+    font-size: 14px;
+  }
+  @media (prefers-color-scheme: dark) {
+    #detail { background: rgba(255,255,255,0.05); color: #B4B2A9; }
+  }
+  .detail-card {
+    background: white;
+    border: 0.5px solid rgba(0,0,0,0.1);
+    border-radius: 8px;
+    padding: 10px 14px;
+  }
+  @media (prefers-color-scheme: dark) {
+    .detail-card { background: #2C2C2A; border-color: rgba(255,255,255,0.1); }
+  }
+
+  /* --- Legend --- */
+  .legend {
+    margin-top: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 12px;
+  }
+  .lg-item {
+    display: inline-flex;
+    align-items: center;
+    color: #6B6A65;
+    cursor: pointer;
+  }
+  @media (prefers-color-scheme: dark) {
+    .lg-item { color: #B4B2A9; }
+  }
+  .lg-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+
+  /* --- Install banner --- */
+  #install-banner {
+    display: none;
+    position: fixed;
+    bottom: 16px;
+    left: 16px;
+    right: 16px;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 12px 16px;
+    background: #1A1A1A;
+    color: white;
+    border-radius: 12px;
+    font-size: 14px;
+    z-index: 100;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    #install-banner { background: #F1EFE8; color: #1A1A1A; }
+  }
+  #install-banner button {
+    border: none;
+    background: white;
+    color: #1A1A1A;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  @media (prefers-color-scheme: dark) {
+    #install-banner button { background: #1A1A1A; color: #F1EFE8; }
+  }
+  #install-banner .dismiss {
+    background: transparent;
+    color: inherit;
+    opacity: 0.7;
+  }
+
+  .sr-only {
+    position: absolute; width: 1px; height: 1px;
+    padding: 0; margin: -1px; overflow: hidden;
+    clip: rect(0,0,0,0); border: 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+<header>
+  <h1>Periodic Kids</h1>
+  <p class="tagline">Tap any element to discover what it's made into around you</p>
+</header>
+
+<div class="controls">
+  <div id="modes" class="modes"></div>
+  <input id="search" type="text" placeholder="Search element, symbol or number" />
+</div>
+
+<div id="filters" class="filters"></div>
+
+<div id="quiz"></div>
+
+<div id="table"></div>
+
+<div id="detail">Click any element to discover what it's made into!</div>
+
+<div id="legend" class="legend"></div>
+
+<footer style="margin-top: 24px; padding-top: 16px; border-top: 0.5px solid rgba(0,0,0,0.1); font-size: 11px; color: #6B6A65; text-align: center;">
+  Periodic Kids · works offline · made for curious kids everywhere
+</footer>
+
+</div>
+
+<div id="install-banner">
+  <span>Add Periodic Kids to your home screen for the best experience</span>
+  <div>
+    <button id="install-btn">Install</button>
+    <button class="dismiss" id="dismiss-btn">Not now</button>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('service-worker.js').catch(err => {
+        console.log('SW registration failed:', err);
+      });
+    });
+  }
+
+  // PWA install prompt
+  let deferredPrompt;
+  const banner = document.getElementById('install-banner');
+  const installBtn = document.getElementById('install-btn');
+  const dismissBtn = document.getElementById('dismiss-btn');
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (!localStorage.getItem('install-dismissed')) {
+      banner.style.display = 'flex';
+    }
+  });
+
+  installBtn.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    banner.style.display = 'none';
+  });
+
+  dismissBtn.addEventListener('click', () => {
+    banner.style.display = 'none';
+    localStorage.setItem('install-dismissed', '1');
+  });
+</script>
+
+</body>
+</html>
