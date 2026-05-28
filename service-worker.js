@@ -1,11 +1,11 @@
 // Periodic Kids — Service Worker
 // Caches the app shell so it works fully offline after first load.
 
-const CACHE_NAME = 'periodic-kids-v1';
+const CACHE_NAME = 'periodic-kids-v4';
 const ASSETS = [
   './',
   './index.html',
-  './app.js',
+  './app.js?v=4',
   './manifest.json',
   './icons/icon-192.png',
   './icons/icon-512.png',

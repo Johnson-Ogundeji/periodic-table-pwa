@@ -24,15 +24,26 @@ periodic-table-pwa/
 
 ## Features
 
+- **Multiple kids / player profiles** — each player picks a name + avatar; **every session asks "Who's playing?"** and each kid's progress (discoveries, XP, badges, streak) is saved separately
+- **Leaderboard** — ranks all the explorers on the device by XP (👑 / 🥈 / 🥉), highlighting the current player
+- **Atomi the mascot** — a friendly cartoon buddy who reacts and cheers as you discover, level up, and answer quizzes
+- **Learn tabs on every element** — **🔧 Uses**, **📜 History** (discovery story), and **🧪 How we get it** (extraction / experimental process), with curated facts for famous elements and a sensible per-family fallback for the rest
 - **All 118 elements** with everyday examples kids can relate to (bananas for potassium, iPhone screens for silicon, fridge magnets for neodymium, etc.)
+- **Discovery collection game** — tap an element to "discover" it (gold ⭐), with a live **X / 118** progress bar
+- **XP & Explorer Levels** — earn XP for discovering elements and answering quiz questions; level up with a celebration
+- **Badges / achievements** — 9 unlockable badges (First Find, Element Hunter, Noble Crew, On Fire, Star Explorer, Element Master…)
+- **Progressive streak quiz** — questions get harder (Easy → Medium → Hard) as your streak grows, with confetti and encouraging feedback
+- **⏱️ Timed Challenge** — a 60-second blitz: answer as many as you can, earn XP, and beat your best score (unlocks the Blitz Champ badge)
+- **⚖️ Compare game** — two elements face off: guess which is heavier / hotter-melting / discovered first / bigger, then see them revealed side-by-side
+- **SVG mini-illustrations** — every element shows a hand-drawn vector icon (a battery for lithium, a balloon for helium, a magnet for iron, a radioactive trefoil for uranium…), mapped per element with a per-family fallback
+- **Element of the Day** — a fresh featured element each day
+- **Sound effects** — generated in-browser via the Web Audio API (no audio files); toggle with the 🔊 button
+- **Confetti celebrations** — drawn on a `<canvas>` for level-ups, badges, and quiz streaks
 - **Four display modes**: element names, outer electron shell, year discovered, melting point
-- **Filter by category**: alkali metals, halogens, noble gases, etc.
-- **Search** by name, symbol, or atomic number
-- **Quiz mode** with 4 question types and live score tracking
-- **Works offline** after first load
-- **Installable** as a standalone app on iOS, Android, Windows, Mac, ChromeOS
-- **Dark mode** automatically follows system setting
-- **Responsive** — tile sizes adapt for phones, tablets, and desktop
+- **Filter by category** + **search** by name, symbol, or atomic number
+- **Progress persists** in `localStorage` (discoveries, XP, badges, best streak, sound preference)
+- **Works offline** after first load · **installable** on iOS, Android, Windows, Mac, ChromeOS
+- **Dark mode** follows system setting · **responsive** for phones, tablets, and desktop
 
 ## Testing locally
 
@@ -98,8 +109,13 @@ Element data lives in the `ELS` array in `app.js`. Each row is:
 - `index.html` `<meta name="theme-color">` 
 - `make_icons.py` constants if you regenerate icons
 
-### Update cache version
-After editing files, bump `CACHE_NAME` in `service-worker.js` (e.g. `'periodic-kids-v1'` → `'periodic-kids-v2'`) so installed apps fetch the new version.
+### Update cache version (do this on every release)
+When you edit `app.js`, bump the version in **three** places so browsers and installed apps fetch the new code instead of a stale cached copy:
+1. `index.html` — the script tag: `<script src="app.js?v=2">` → `?v=3`
+2. `service-worker.js` — the `ASSETS` entry: `'./app.js?v=2'` → `'./app.js?v=3'`
+3. `service-worker.js` — `CACHE_NAME`: `'periodic-kids-v2'` → `'periodic-kids-v3'`
+
+(The `?v=` query is what reliably busts the cache — a plain `app.js` reference can be served stale by the service worker.)
 
 ## License & credits
 Free to use, modify, and distribute for educational purposes.
